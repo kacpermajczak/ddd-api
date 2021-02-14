@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Infrastructure\File;
@@ -8,8 +9,8 @@ use Ramsey\Uuid\Uuid;
 
 final class FileNameGeneratorUsingUuid implements FileNameGenerator
 {
-    public function generate(): string
+    public function generate(string $extension): string
     {
-        return Uuid::uuid4()->toString();
+        return Uuid::uuid4()->toString().$extension;
     }
 }

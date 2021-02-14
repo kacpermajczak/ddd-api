@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\File\Csv;
 
-use App\Application\CategoryMapsCollection;
 use App\Application\File\FileHandler;
 use App\Application\File\FileNameGenerator;
+use App\Application\File\RemodelCollectionPolicy;
 use App\Application\File\SavingFileService;
-use App\Application\ProductsCollection;
 use App\Application\ProductsWithCategoriesResult;
 
 final class ProductSavingCsvService implements SavingFileService
@@ -17,6 +16,7 @@ final class ProductSavingCsvService implements SavingFileService
     private ProductCsvGenerator $productCsvGenerator;
     private FileHandler $fileHandler;
     private FileNameGenerator $fileNameGenerator;
+    private RemodelCollectionPolicy $policy;
 
     public function __construct(
         ProductCsvGenerator $productCsvGenerator,
@@ -30,44 +30,16 @@ final class ProductSavingCsvService implements SavingFileService
 
     public function save(ProductsWithCategoriesResult $productsWithCategoriesResult): void
     {
-        $this->mapCategories(
-            $productsWithCategoriesResult->categories(),
-            $productsWithCategoriesResult->products()
+        $this->policy->remodelCollection($productsWithCategoriesResult);
+        $this->fileHandler->save(
+            $this->productCsvGenerator->generate($productsWithCategoriesResult),
+            $this->fileNameGenerator->generate(self::EXTENSION)
         );
-        $csv = $this->getCsv($productsWithCategoriesResult);
-        $this->saveCsv($csv);
     }
 
-    private function mapCategories(
-        CategoryMapsCollection $categoryMapsCollection,
-        ProductsCollection $productsCollection
-    ): void {
-        foreach ($productsCollection->asArray() as $product) {
-            $newCategory = $categoryMapsCollection->findByOld($product->category());
-            if ($newCategory === null) {
-                continue;
-            }
-            $product->changeCategory($newCategory);
-        }
-    }
-
-    /**
-     * @param ProductsWithCategoriesResult $productsWithCategoriesResult
-     * @return string
-     */
-    private function getCsv(ProductsWithCategoriesResult $productsWithCategoriesResult): string
+    public function setPolicy(RemodelCollectionPolicy $policy): void
     {
-        $csv = $this->productCsvGenerator->generate($productsWithCategoriesResult);
-
-        return $csv;
-    }
-
-    /**
-     * @param string $csv
-     */
-    private function saveCsv(string $csv): void
-    {
-        $this->fileHandler->save($csv, $this->fileNameGenerator->generate().self::EXTENSION);
+        $this->policy = $policy;
     }
 }
 

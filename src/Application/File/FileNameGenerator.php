@@ -5,5 +5,5 @@ namespace App\Application\File;
 
 interface FileNameGenerator
 {
-    public function generate(): string;
+    public function generate(string $extension): string;
 }

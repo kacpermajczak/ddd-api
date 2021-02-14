@@ -34,6 +34,15 @@ final class ProductsCollection
         unset($this->productsArray[$productId->asNumber()]);
     }
 
+    public function findById(ProductId $productId): ?Product
+    {
+        if(!isset($this->productsArray[$productId->asNumber()])) {
+            return null;
+        }
+
+        return $this->productsArray[$productId->asNumber()];
+    }
+
     /**
      * @return array<string,mixed>
      */
