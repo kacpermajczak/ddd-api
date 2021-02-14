@@ -1,0 +1,13 @@
+Context: We need to get data (products and categories) from two different places and use it together
+
+Solution #1: Use event bus and subscribe these events with another handler. This type of solution will use Fire and Forget async communication type.
+Something like event -> eventHandler -> event -> eventHandler etc.
+
+
+Solution #2: Make connection to two external repositories synchronously one by one.
+
+Comment:
+
+Solution #1 would be less fragile because if one server doesn't respond it needs to repeat only one API call instead of many like from the second solution, but for this time it's.
+
+So why I have chosen the second solution? Because it's easier to debug and maintain in the future. Also we have the same API client, so if it's dead both requests would be unavailable.
